@@ -7,7 +7,10 @@ import lombok.Data;
 @Data
 public class UpdateSiteRequest {
     @CronRegex
-    private String schedule;
+    private String onSchedule;
+
+    @CronRegex
+    private String offSchedule;
 
     @NotBlank
     private String status;

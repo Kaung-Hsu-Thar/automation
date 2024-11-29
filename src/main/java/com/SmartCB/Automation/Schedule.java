@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
@@ -27,17 +26,31 @@ public class Schedule{
         List<SiteInfo> siteInfos = siteInfoRepository.findAll();
 
         for (SiteInfo siteInfo : siteInfos) {
-            String cronExpression = siteInfo.getSchedule();
-            if (isCronMatch(cronExpression)) {
-                // Pass both siteInfo and cronExpression
-                logScheduledTime(siteInfo, cronExpression);
+            if ("Running".equalsIgnoreCase(siteInfo.getStatus())) {
+                String onCronExpression = siteInfo.getOnSchedule();
+                String offCronExpression = siteInfo.getOffSchedule();
+
+                // Check "ON" cron schedule
+                if (isCronMatch(onCronExpression)) {
+                    performOnOperation(siteInfo);
+                }
+
+                // Check "OFF" cron schedule
+                if (isCronMatch(offCronExpression)) {
+                    performOffOperation(siteInfo);
+                }
+            } else {
+                log.info("Site {} is stopped. Skipping...", siteInfo.getSiteCode());
             }
         }
     }
 
-
     private boolean isCronMatch(String cronExpression) {
         try {
+            if (cronExpression == null || cronExpression.isEmpty()) {
+                return false; // No schedule set, skip this check
+            }
+
             CronExpression cron = new CronExpression(cronExpression);
             Date now = new Date();
             log.info("Current time: {}", now.toString());
@@ -51,29 +64,18 @@ public class Schedule{
         }
     }
 
-    private void logScheduledTime(SiteInfo siteInfo, String cronExpression) {
-        // Get the current time
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        // Calculate the next valid time from the cron expression
-        Date nextValidTime = getNextValidTime(cronExpression);
-
-        // Log the scheduled time and cron expression
-        log.info("Scheduled task triggered for SiteCode: {} at {}. Cron Expression: {}. Next valid time: {}",
+    // Placeholder for "On" operation
+    private void performOnOperation(SiteInfo siteInfo) {
+        log.info("Performing ON operation for SiteCode: {} at {}",
                 siteInfo.getSiteCode(),
-                currentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                cronExpression,
-                nextValidTime != null ? nextValidTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "N/A");
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
-    private Date getNextValidTime(String cronExpression) {
-        try {
-            CronExpression cron = new CronExpression(cronExpression);
-            return cron.getNextValidTimeAfter(new Date());
-        } catch (ParseException e) {
-            log.error("Error parsing cron expression: {}", cronExpression);
-            return null;
-        }
+    // Placeholder for "Off" operation
+    private void performOffOperation(SiteInfo siteInfo) {
+        log.info("Performing OFF operation for SiteCode: {} at {}",
+                siteInfo.getSiteCode(),
+                LocalDateTime.now().plusMinutes(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 }
 

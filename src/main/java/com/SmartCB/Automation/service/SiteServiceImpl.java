@@ -58,7 +58,8 @@ public class SiteServiceImpl implements SiteService {
 
         SiteInfo existingSite = siteInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Site not found with Id : " + id));
-        existingSite.setSchedule(request.getSchedule());
+        existingSite.setOnSchedule(request.getOnSchedule());
+        existingSite.setOffSchedule(request.getOffSchedule());
         existingSite.setStatus(request.getStatus());
         SiteInfo updatedSite = siteInfoRepository.save(existingSite);
 
@@ -67,7 +68,7 @@ public class SiteServiceImpl implements SiteService {
 
     // Search sites by searchTerm (siteCode, schedule, or status)
     public BaseResponse searchSites(String searchTerm) {
-        List<SiteInfo> sites = siteInfoRepository.findBySiteCodeOrScheduleOrStatusContainingIgnoreCase(searchTerm, searchTerm, searchTerm);
+        List<SiteInfo> sites = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm);
         if (sites.isEmpty()) {
             return new BaseResponse("001", "No sites found for search term: " + searchTerm, null);
         }
@@ -106,7 +107,7 @@ public class SiteServiceImpl implements SiteService {
                 }
 
                 if (!isRowEmpty) {
-                    hasData = true; // Found a non-empty row
+                    hasData = true;
                     break;
                 }
             }
@@ -122,16 +123,21 @@ public class SiteServiceImpl implements SiteService {
                 }
 
                 String siteCode = row.getCell(0).getStringCellValue();
-                String schedule = row.getCell(1).getStringCellValue();
-                String status = row.getCell(2).getStringCellValue();
+                String onSchedule = row.getCell(1).getStringCellValue();
+                String offSchedule = row.getCell(2).getStringCellValue();
+                String status = row.getCell(3).getStringCellValue();
 
                 // Validate data
                 if (!isValidSiteCode(siteCode)) {
                     throw new IllegalArgumentException("Invalid SiteCode format: " + siteCode);
                 }
 
-                if (!isValidSchedule(schedule)) {
-                    throw new IllegalArgumentException("Invalid Schedule format: " + schedule);
+                if (!isValidSchedule(onSchedule)) {
+                    throw new IllegalArgumentException("Invalid OnSchedule format: " + onSchedule);
+                }
+
+                if (!isValidSchedule(offSchedule)) {
+                    throw new IllegalArgumentException("Invalid OffSchedule format: " + offSchedule);
                 }
 
                 if (!isValidStatus(status)) {
@@ -149,7 +155,8 @@ public class SiteServiceImpl implements SiteService {
                 // If validation passes, save the site information
                 SiteInfo siteInfo = new SiteInfo();
                 siteInfo.setSiteCode(siteCode);
-                siteInfo.setSchedule(schedule);
+                siteInfo.setOnSchedule(onSchedule);
+                siteInfo.setOffSchedule(offSchedule);
                 siteInfo.setStatus(status);
 
                 // Save the SiteInfo object
@@ -179,7 +186,7 @@ public class SiteServiceImpl implements SiteService {
 
             // Header row
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Site Code", "Schedule", "Status"};
+            String[] headers = {"Site Code", "OnSchedule", "OffSchedule", "Status"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
@@ -191,8 +198,9 @@ public class SiteServiceImpl implements SiteService {
             for (SiteInfo site : sites) {
                 Row row = sheet.createRow(rowIndex++);
                 row.createCell(0).setCellValue(site.getSiteCode());
-                row.createCell(1).setCellValue(site.getSchedule());
-                row.createCell(2).setCellValue(site.getStatus());
+                row.createCell(1).setCellValue(site.getOnSchedule());
+                row.createCell(2).setCellValue(site.getOffSchedule());
+                row.createCell(3).setCellValue(site.getStatus());
             }
 
             workbook.write(out);

@@ -12,5 +12,5 @@ public interface SiteInfoRepository extends JpaRepository<SiteInfo, Long> {
 
     SiteInfo findBySiteCode(String siteCode);
 
-    List<SiteInfo> findBySiteCodeOrScheduleOrStatusContainingIgnoreCase(String siteCode, String schedule, String status);
+    List<SiteInfo> findBySiteCodeOrStatusContainingIgnoreCase(String siteCode, String status);
 }

@@ -100,8 +100,9 @@ public class SiteController {
         // Create header row
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("SiteCode");
-        headerRow.createCell(1).setCellValue("Schedule");
-        headerRow.createCell(2).setCellValue("Status");
+        headerRow.createCell(1).setCellValue("OnSchedule");
+        headerRow.createCell(2).setCellValue("OffSchedule");
+        headerRow.createCell(3).setCellValue("Status");
 
         // Write the output to a ByteArrayOutputStream
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {

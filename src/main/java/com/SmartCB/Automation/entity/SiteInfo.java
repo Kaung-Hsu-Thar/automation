@@ -14,7 +14,8 @@ public class SiteInfo {
     private Long id;
     @Column(nullable = false, unique = true)
     private String siteCode;
-    private String schedule;
+    private String onSchedule;
+    private String offSchedule;
 
     private String status;
 
