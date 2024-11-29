@@ -1,6 +1,8 @@
 package com.SmartCB.Automation;
 
+import com.SmartCB.Automation.entity.CronHistory;
 import com.SmartCB.Automation.entity.SiteInfo;
+import com.SmartCB.Automation.repository.CronHistoryRepository;
 import com.SmartCB.Automation.repository.SiteInfoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronExpression;
@@ -9,8 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +23,9 @@ public class Schedule{
     @Autowired
     private SiteInfoRepository siteInfoRepository;
 
+    @Autowired
+    private CronHistoryRepository cronHistoryRepository;
+
     @Scheduled(fixedRate = 60000)
     public void logScheduledTasks() {
         List<SiteInfo> siteInfos = siteInfoRepository.findAll();
@@ -30,13 +35,11 @@ public class Schedule{
                 String onCronExpression = siteInfo.getOnSchedule();
                 String offCronExpression = siteInfo.getOffSchedule();
 
-                // Check "ON" cron schedule
-                if (isCronMatch(onCronExpression)) {
+                if (isCronMatch(onCronExpression) && !isOperationAlreadyLogged(siteInfo.getSiteCode(), "ON")) {
                     performOnOperation(siteInfo);
                 }
 
-                // Check "OFF" cron schedule
-                if (isCronMatch(offCronExpression)) {
+                if (isCronMatch(offCronExpression) && !isOperationAlreadyLogged(siteInfo.getSiteCode(), "OFF")) {
                     performOffOperation(siteInfo);
                 }
             } else {
@@ -48,7 +51,7 @@ public class Schedule{
     private boolean isCronMatch(String cronExpression) {
         try {
             if (cronExpression == null || cronExpression.isEmpty()) {
-                return false; // No schedule set, skip this check
+                return false;
             }
 
             CronExpression cron = new CronExpression(cronExpression);
@@ -64,18 +67,31 @@ public class Schedule{
         }
     }
 
-    // Placeholder for "On" operation
-    private void performOnOperation(SiteInfo siteInfo) {
-        log.info("Performing ON operation for SiteCode: {} at {}",
-                siteInfo.getSiteCode(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+    private boolean isOperationAlreadyLogged(String siteCode, String operationType) {
+        return !cronHistoryRepository.findBySiteCodeAndOperationTypeAndExecutedAtGreaterThanEqual(
+                siteCode, operationType, LocalDate.now().atStartOfDay()).isEmpty();
     }
 
-    // Placeholder for "Off" operation
+    private void performOnOperation(SiteInfo siteInfo) {
+        log.info("Performing ON operation for SiteCode: {}", siteInfo.getSiteCode());
+
+        // Log to history
+        CronHistory history = new CronHistory();
+        history.setSiteCode(siteInfo.getSiteCode());
+        history.setOperationType("ON");
+        history.setExecutedAt(LocalDateTime.now());
+        cronHistoryRepository.save(history);
+    }
+
     private void performOffOperation(SiteInfo siteInfo) {
-        log.info("Performing OFF operation for SiteCode: {} at {}",
-                siteInfo.getSiteCode(),
-                LocalDateTime.now().plusMinutes(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        log.info("Performing OFF operation for SiteCode: {}", siteInfo.getSiteCode());
+
+        // Log to history
+        CronHistory history = new CronHistory();
+        history.setSiteCode(siteInfo.getSiteCode());
+        history.setOperationType("OFF");
+        history.setExecutedAt(LocalDateTime.now());
+        cronHistoryRepository.save(history);
     }
 }
 
