@@ -1,6 +1,5 @@
 package com.SmartCB.Automation.controller;
 
-import com.SmartCB.Automation.Schedule;
 import com.SmartCB.Automation.dto.BaseResponse;
 import com.SmartCB.Automation.dto.UpdateSiteRequest;
 import com.SmartCB.Automation.service.SiteService;
@@ -13,7 +12,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

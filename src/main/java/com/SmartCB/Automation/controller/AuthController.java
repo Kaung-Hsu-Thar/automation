@@ -16,11 +16,6 @@ public class AuthController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @GetMapping("/employee")
-    public BaseResponse getAllEmployee() {
-        return new BaseResponse("000", "success", employeeRepository.findAll());
-    }
-
     // Login: Validate VMYCode and send OTP
     @PostMapping("/request-otp-login")
     public BaseResponse login(@RequestBody String vmyCode) {
