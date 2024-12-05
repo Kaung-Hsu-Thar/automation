@@ -61,11 +61,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     // Updated validateOTP method to include JWT generation after OTP validation
     public BaseResponse validateOTP(AuthVerify verify) {
-        BaseResponse otpResponse = otpService.validateOtp(verify.getOtp(), verify.getVmyCode());
+        // Normalize vmyCode to lowercase
+        String normalizedVmyCode = verify.getVmyCode().toLowerCase();
+
+        // Validate OTP using normalized vmyCode
+        BaseResponse otpResponse = otpService.validateOtp(verify.getOtp(), normalizedVmyCode);
 
         // If OTP is valid, generate the JWT and return it
         if ("000".equals(otpResponse.getErrorCode())) {
-            String jwtToken = jwtUtil.generateToken(verify.getVmyCode());
+            String jwtToken = jwtUtil.generateToken(normalizedVmyCode);
 
             // Return the JWT token in the response
             return new BaseResponse("000", "OTP validated successfully", jwtToken);
@@ -73,6 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             return otpResponse;
         }
     }
+
 
     private boolean hasExceededRequestLimit(String vmyCode) {
         LocalDateTime oneMinuteAgo = LocalDateTime.now().minusMinutes(1);
