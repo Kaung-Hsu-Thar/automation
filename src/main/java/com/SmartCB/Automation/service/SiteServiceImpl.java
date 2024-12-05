@@ -6,6 +6,9 @@ import com.SmartCB.Automation.entity.SiteInfo;
 import com.SmartCB.Automation.repository.SiteInfoRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
@@ -47,6 +52,23 @@ public class SiteServiceImpl implements SiteService {
     public BaseResponse getAllSites() {
         List<SiteInfo> sites = siteInfoRepository.findAll();
         return new BaseResponse("000", "success", sites);
+    }
+
+    public BaseResponse getPaginatedSites(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SiteInfo> paginatedSites = siteInfoRepository.findAll(pageable);
+
+        if (paginatedSites.isEmpty()) {
+            return new BaseResponse("001", "No sites found.", null);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", paginatedSites.getContent());
+        response.put("currentPage", paginatedSites.getNumber());
+        response.put("totalItems", paginatedSites.getTotalElements());
+        response.put("totalPages", paginatedSites.getTotalPages());
+
+        return new BaseResponse("000", "success", response);
     }
 
     // Update Site Details

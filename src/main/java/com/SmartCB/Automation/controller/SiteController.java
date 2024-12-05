@@ -39,6 +39,13 @@ public class SiteController {
         return ResponseEntity.ok(siteService.getAllSites());
     }
 
+    @GetMapping("/paginated")
+    public ResponseEntity<BaseResponse> getPaginatedSites(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(siteService.getPaginatedSites(page, size));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<BaseResponse> updateSite(@PathVariable Long id, @RequestBody UpdateSiteRequest request) {
         return ResponseEntity.ok(siteService.updateSite(id, request));
