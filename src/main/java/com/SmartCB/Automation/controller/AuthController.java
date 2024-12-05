@@ -18,13 +18,13 @@ public class AuthController {
 
     // Login: Validate VMYCode and send OTP
     @PostMapping("/request-otp-login")
-    public BaseResponse login(@RequestBody String vmyCode) {
+    public BaseResponse login(@RequestParam String vmyCode) {
         return employeeService.validateVMYCodeAndSendOTP(vmyCode);
     }
 
     // Resend OTP if needed
     @PostMapping("/resend-otp")
-    public BaseResponse resendOTP(@RequestBody String vmyCode) {
+    public BaseResponse resendOTP(@RequestParam String vmyCode) {
         return employeeService.resendOTP(vmyCode);
     }
 
