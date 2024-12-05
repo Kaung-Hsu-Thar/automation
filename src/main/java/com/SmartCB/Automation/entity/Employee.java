@@ -18,4 +18,10 @@ public class Employee {
     private String name;
     @Column(nullable = false)
     private String email;
+
+    @PrePersist
+    @PreUpdate
+    private void normalizeVmyCode() {
+        this.vmyCode = this.vmyCode.toLowerCase();
+    }
 }
