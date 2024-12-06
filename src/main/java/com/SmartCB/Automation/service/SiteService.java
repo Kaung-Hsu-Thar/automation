@@ -8,9 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface SiteService {
-     BaseResponse getAllSites();
-
-     BaseResponse getPaginatedSites(int page, int size);
+     BaseResponse getAllSites(int page, int size);
 
      BaseResponse updateSite(Long id, UpdateSiteRequest request);
 

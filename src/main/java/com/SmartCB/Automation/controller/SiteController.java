@@ -34,16 +34,11 @@ public class SiteController {
         this.siteService = siteService;
     }
 
-    @GetMapping
-    public ResponseEntity<BaseResponse> getAllSites() {
-        return ResponseEntity.ok(siteService.getAllSites());
-    }
-
-    @GetMapping("/paginated")
-    public ResponseEntity<BaseResponse> getPaginatedSites(
+    @GetMapping("/sites")
+    public ResponseEntity<BaseResponse> getAllSites(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(siteService.getPaginatedSites(page, size));
+        return ResponseEntity.ok(siteService.getAllSites(page, size));
     }
 
     @PutMapping("/{id}")

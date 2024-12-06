@@ -49,12 +49,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     //Fetch all sites
-    public BaseResponse getAllSites() {
-        List<SiteInfo> sites = siteInfoRepository.findAll();
-        return new BaseResponse("000", "success", sites);
-    }
-
-    public BaseResponse getPaginatedSites(int page, int size) {
+    public BaseResponse getAllSites(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<SiteInfo> paginatedSites = siteInfoRepository.findAll(pageable);
 
@@ -70,6 +65,7 @@ public class SiteServiceImpl implements SiteService {
 
         return new BaseResponse("000", "success", response);
     }
+
 
     // Update Site Details
     public BaseResponse updateSite(Long id, UpdateSiteRequest request) {
