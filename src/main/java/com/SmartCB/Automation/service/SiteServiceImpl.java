@@ -91,7 +91,7 @@ public class SiteServiceImpl implements SiteService {
     public BaseResponse searchSites(String searchTerm) {
         List<SiteInfo> sites = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm);
         if (sites.isEmpty()) {
-            return new BaseResponse("001", "No sites found for search term: " + searchTerm, null);
+            return new BaseResponse("000", "No sites found for search term: " + searchTerm, sites);
         }
         return new BaseResponse("000", "success", sites);
     }
