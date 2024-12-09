@@ -35,25 +35,18 @@ public class SiteController {
     }
 
     @GetMapping("/sites")
-    public ResponseEntity<BaseResponse> getAllSites(
+    @Operation(summary = "Fetch or search sites", description = "Fetches all sites or searches for sites by siteCode or status based on a search term.")
+    public ResponseEntity<BaseResponse> getSites(
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(siteService.getAllSites(page, size));
+        BaseResponse response = siteService.getSites(searchTerm, page, size);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BaseResponse> updateSite(@PathVariable Long id, @RequestBody UpdateSiteRequest request) {
         return ResponseEntity.ok(siteService.updateSite(id, request));
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Search sites", description = "Searches for sites by siteCode or status.")
-    public ResponseEntity<BaseResponse> searchSites(
-            @RequestParam("searchTerm") String searchTerm,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        BaseResponse response = siteService.searchSites(searchTerm, page, size);
-        return ResponseEntity.ok(response);
     }
 
     // Import Excel file

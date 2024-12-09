@@ -8,11 +8,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface SiteService {
-     BaseResponse getAllSites(int page, int size);
+     BaseResponse getSites(String searchTerm, int page, int size);
 
      BaseResponse updateSite(Long id, UpdateSiteRequest request);
-
-     BaseResponse searchSites(String searchTerm, int page, int size);
 
      BaseResponse importSitesToExcel(MultipartFile file) throws IOException;
 

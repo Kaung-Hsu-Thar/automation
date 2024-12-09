@@ -48,24 +48,33 @@ public class SiteServiceImpl implements SiteService {
         return "STOPPED".equalsIgnoreCase(status) || "RUNNING".equalsIgnoreCase(status);
     }
 
-    //Fetch all sites
-    public BaseResponse getAllSites(int page, int size) {
+    public BaseResponse getSites(String searchTerm, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<SiteInfo> paginatedSites = siteInfoRepository.findAll(pageable);
 
-        if (paginatedSites.isEmpty()) {
-            return new BaseResponse("001", "No sites found.", null);
+        Page<SiteInfo> sitePage;
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            // Fetch all sites
+            sitePage = siteInfoRepository.findAll(pageable);
+        } else {
+            // Search by searchTerm
+            sitePage = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm, pageable);
         }
 
+        if (sitePage.isEmpty()) {
+            String message = (searchTerm == null || searchTerm.isEmpty()) ? "No sites found."
+                    : "No sites found for search term: " + searchTerm;
+            return new BaseResponse("001", message, null);
+        }
+
+        // Prepare paginated response
         Map<String, Object> response = new HashMap<>();
-        response.put("content", paginatedSites.getContent());
-        response.put("currentPage", paginatedSites.getNumber());
-        response.put("totalItems", paginatedSites.getTotalElements());
-        response.put("totalPages", paginatedSites.getTotalPages());
+        response.put("content", sitePage.getContent());
+        response.put("currentPage", sitePage.getNumber());
+        response.put("totalItems", sitePage.getTotalElements());
+        response.put("totalPages", sitePage.getTotalPages());
 
         return new BaseResponse("000", "success", response);
     }
-
 
     // Update Site Details
     public BaseResponse updateSite(Long id, UpdateSiteRequest request) {
@@ -82,19 +91,6 @@ public class SiteServiceImpl implements SiteService {
 
         return new BaseResponse("000", "Site updated successfully.", updatedSite);
     }
-
-    // Search sites by searchTerm (siteCode, schedule, or status)
-    @Override
-    public BaseResponse searchSites(String searchTerm, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SiteInfo> sitePage = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm, pageable);
-
-        if (sitePage.isEmpty()) {
-            return new BaseResponse("000", "No sites found for search term: " + searchTerm, sitePage.getContent());
-        }
-        return new BaseResponse("000", "success", sitePage.getContent());
-    }
-
 
     // Import Excel files
     public BaseResponse importSitesToExcel(MultipartFile file) throws IOException {
