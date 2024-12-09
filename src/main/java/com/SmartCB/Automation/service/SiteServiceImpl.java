@@ -84,13 +84,17 @@ public class SiteServiceImpl implements SiteService {
     }
 
     // Search sites by searchTerm (siteCode, schedule, or status)
-    public BaseResponse searchSites(String searchTerm) {
-        List<SiteInfo> sites = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm);
-        if (sites.isEmpty()) {
-            return new BaseResponse("000", "No sites found for search term: " + searchTerm, sites);
+    @Override
+    public BaseResponse searchSites(String searchTerm, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SiteInfo> sitePage = siteInfoRepository.findBySiteCodeOrStatusContainingIgnoreCase(searchTerm, searchTerm, pageable);
+
+        if (sitePage.isEmpty()) {
+            return new BaseResponse("000", "No sites found for search term: " + searchTerm, sitePage.getContent());
         }
-        return new BaseResponse("000", "success", sites);
+        return new BaseResponse("000", "success", sitePage.getContent());
     }
+
 
     // Import Excel files
     public BaseResponse importSitesToExcel(MultipartFile file) throws IOException {

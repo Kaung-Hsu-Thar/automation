@@ -12,7 +12,7 @@ public interface SiteService {
 
      BaseResponse updateSite(Long id, UpdateSiteRequest request);
 
-     BaseResponse searchSites(String searchTerm);
+     BaseResponse searchSites(String searchTerm, int page, int size);
 
      BaseResponse importSitesToExcel(MultipartFile file) throws IOException;
 

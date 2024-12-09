@@ -47,9 +47,12 @@ public class SiteController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search sites", description = "Searches for sites by siteCode, schedule, or status.")
-    public ResponseEntity<BaseResponse> searchSites(@RequestParam("searchTerm") String searchTerm) {
-        BaseResponse response = siteService.searchSites(searchTerm);
+    @Operation(summary = "Search sites", description = "Searches for sites by siteCode or status.")
+    public ResponseEntity<BaseResponse> searchSites(
+            @RequestParam("searchTerm") String searchTerm,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        BaseResponse response = siteService.searchSites(searchTerm, page, size);
         return ResponseEntity.ok(response);
     }
 
